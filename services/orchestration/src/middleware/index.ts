@@ -15,7 +15,8 @@ export function requestIdMiddleware(
   res: Response,
   next: NextFunction
 ): void {
-  req.requestId = req.headers['x-request-id'] as string || uuidv4();
+  const requestIdHeader = req.headers['x-request-id'];
+  req.requestId = (Array.isArray(requestIdHeader) ? requestIdHeader[0] : requestIdHeader) || uuidv4();
   res.setHeader('X-Request-Id', req.requestId);
   next();
 }

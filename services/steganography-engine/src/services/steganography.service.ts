@@ -282,7 +282,8 @@ export class SteganographyService {
    * Checks if a format is supported
    */
   isFormatSupported(format: string): boolean {
-    return SUPPORTED_FORMATS.includes(format.toLowerCase() as any);
+    const lowerFormat = format.toLowerCase();
+    return SUPPORTED_FORMATS.some(f => f === lowerFormat);
   }
 
   /**
