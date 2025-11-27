@@ -136,12 +136,17 @@ function calculateCrc32(data: Buffer): Buffer {
   return result;
 }
 
+// PNG CRC-32 constants (IEEE 802.3 polynomial)
+const CRC32_POLYNOMIAL = 0xEDB88320;  // Reversed polynomial for CRC-32
+const CRC_TABLE_SIZE = 256;           // Table for all possible byte values
+const BITS_PER_BYTE = 8;              // Bits to process per table entry
+
 function makeCrcTable(): number[] {
   const table: number[] = [];
-  for (let n = 0; n < 256; n++) {
+  for (let n = 0; n < CRC_TABLE_SIZE; n++) {
     let c = n;
-    for (let k = 0; k < 8; k++) {
-      c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1;
+    for (let k = 0; k < BITS_PER_BYTE; k++) {
+      c = c & 1 ? CRC32_POLYNOMIAL ^ (c >>> 1) : c >>> 1;
     }
     table[n] = c >>> 0;
   }

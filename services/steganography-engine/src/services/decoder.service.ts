@@ -1,7 +1,7 @@
 import Jimp from 'jimp';
-import { getLSB, binaryToString, binaryTo32BitNumber } from '../utils/bit.utils';
+import { getLSB, binaryTo32BitNumber } from '../utils/bit.utils';
 import { decrypt } from './encryption.service';
-import { validateImage } from './validation.service';
+import { validateImage, MESSAGE_LENGTH_BITS, ENCRYPTION_FLAG_BITS, HEADER_BITS, RGB_CHANNELS } from './validation.service';
 import { DecodedResult } from '../types';
 import logger from '../utils/logger';
 
@@ -29,7 +29,7 @@ export async function decode(
   let messageLength = 0;
   let isEncrypted = false;
   let headerRead = false;
-  let bitsNeeded = 40; // 32 bits for length + 8 bits for encryption flag
+  let bitsNeeded = HEADER_BITS; // MESSAGE_LENGTH_BITS + ENCRYPTION_FLAG_BITS
   
   image.scan(0, 0, width, height, function(x, y, idx) {
     if (extractedBits.length < bitsNeeded) {
@@ -47,14 +47,14 @@ export async function decode(
       }
       
       // Once we have the header, calculate total bits needed
-      if (!headerRead && extractedBits.length >= 40) {
-        messageLength = binaryTo32BitNumber(extractedBits.substring(0, 32));
-        isEncrypted = extractedBits.substring(32, 40) !== '00000000';
-        bitsNeeded = 40 + (messageLength * 8);
+      if (!headerRead && extractedBits.length >= HEADER_BITS) {
+        messageLength = binaryTo32BitNumber(extractedBits.substring(0, MESSAGE_LENGTH_BITS));
+        isEncrypted = extractedBits.substring(MESSAGE_LENGTH_BITS, HEADER_BITS) !== '00000000';
+        bitsNeeded = HEADER_BITS + (messageLength * 8);
         headerRead = true;
         
         // Sanity check for message length
-        const maxBytes = (width * height * 3) / 8 - 5;
+        const maxBytes = (width * height * RGB_CHANNELS) / 8 - (HEADER_BITS / 8);
         if (messageLength <= 0 || messageLength > maxBytes) {
           throw new Error('No valid hidden message found in this image');
         }
@@ -67,7 +67,7 @@ export async function decode(
   }
   
   // Extract the message bytes
-  const messageBits = extractedBits.substring(40, 40 + (messageLength * 8));
+  const messageBits = extractedBits.substring(HEADER_BITS, HEADER_BITS + (messageLength * 8));
   const messageBytes: number[] = [];
   
   for (let i = 0; i < messageBits.length; i += 8) {
@@ -125,19 +125,19 @@ export async function hasHiddenData(imageBuffer: Buffer): Promise<boolean> {
     
     // Read just enough bits to get the length
     image.scan(0, 0, image.getWidth(), image.getHeight(), function(x, y, idx) {
-      if (extractedBits.length < 32) {
+      if (extractedBits.length < MESSAGE_LENGTH_BITS) {
         extractedBits += getLSB(this.bitmap.data[idx]);
-        if (extractedBits.length < 32) {
+        if (extractedBits.length < MESSAGE_LENGTH_BITS) {
           extractedBits += getLSB(this.bitmap.data[idx + 1]);
         }
-        if (extractedBits.length < 32) {
+        if (extractedBits.length < MESSAGE_LENGTH_BITS) {
           extractedBits += getLSB(this.bitmap.data[idx + 2]);
         }
       }
     });
     
     const length = binaryTo32BitNumber(extractedBits);
-    const maxBytes = (image.getWidth() * image.getHeight() * 3) / 8 - 5;
+    const maxBytes = (image.getWidth() * image.getHeight() * RGB_CHANNELS) / 8 - (HEADER_BITS / 8);
     
     return length > 0 && length <= maxBytes;
   } catch {

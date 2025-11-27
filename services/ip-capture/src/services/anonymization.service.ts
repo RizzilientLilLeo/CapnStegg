@@ -1,5 +1,9 @@
 import crypto from 'crypto';
 
+// Constants for IP anonymization
+const IPV4_PRESERVED_OCTETS = 3;
+const IPV6_PRESERVED_GROUPS = 3;
+
 /**
  * Hash an IP address using SHA-256 for anonymization
  */
@@ -16,11 +20,11 @@ export function truncateIP(ip: string): string {
   if (ip.includes(':')) {
     // IPv6
     const parts = ip.split(':');
-    return parts.slice(0, 3).join(':') + ':x:x:x:x:x';
+    return parts.slice(0, IPV6_PRESERVED_GROUPS).join(':') + ':x:x:x:x:x';
   } else {
     // IPv4
     const parts = ip.split('.');
-    return parts.slice(0, 3).join('.') + '.x';
+    return parts.slice(0, IPV4_PRESERVED_OCTETS).join('.') + '.x';
   }
 }
 

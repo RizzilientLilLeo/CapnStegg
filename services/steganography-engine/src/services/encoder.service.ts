@@ -1,7 +1,7 @@
 import Jimp from 'jimp';
-import { setLSB, stringToBinary, numberTo32BitBinary } from '../utils/bit.utils';
+import { setLSB, numberTo32BitBinary } from '../utils/bit.utils';
 import { encrypt, getEncryptionOverhead } from './encryption.service';
-import { validateImage, calculateCapacity } from './validation.service';
+import { validateImage, calculateCapacity, MESSAGE_LENGTH_BITS, ENCRYPTION_FLAG_BITS } from './validation.service';
 import { EncodedResult, CapacityInfo } from '../types';
 import logger from '../utils/logger';
 
@@ -49,7 +49,7 @@ export async function encode(
     .map(byte => byte.toString(2).padStart(8, '0'))
     .join('');
   const encryptedFlag = isEncrypted ? '1' : '0';
-  const fullBinary = lengthBinary + encryptedFlag.padStart(8, '0') + dataBinary;
+  const fullBinary = lengthBinary + encryptedFlag.padStart(ENCRYPTION_FLAG_BITS, '0') + dataBinary;
   
   let bitIndex = 0;
   

@@ -2,6 +2,12 @@ import Jimp from 'jimp';
 import config from '../config';
 import logger from '../utils/logger';
 
+// Constants for steganography header
+export const RGB_CHANNELS = 3;
+export const MESSAGE_LENGTH_BITS = 32;
+export const ENCRYPTION_FLAG_BITS = 8;
+export const HEADER_BITS = MESSAGE_LENGTH_BITS + ENCRYPTION_FLAG_BITS;
+
 export interface ValidationResult {
   valid: boolean;
   format?: string;
@@ -64,9 +70,9 @@ export async function validateImage(imageBuffer: Buffer): Promise<ValidationResu
  * Calculate the maximum message capacity for an image
  */
 export function calculateCapacity(width: number, height: number): number {
-  // Each pixel has 3 color channels (RGB), each can store 1 bit
-  // We reserve 32 bits for message length
-  const totalBits = width * height * 3;
-  const availableBits = totalBits - 32;
+  // Each pixel has RGB_CHANNELS color channels, each can store 1 bit
+  // We reserve HEADER_BITS for message length and encryption flag
+  const totalBits = width * height * RGB_CHANNELS;
+  const availableBits = totalBits - HEADER_BITS;
   return Math.floor(availableBits / 8); // Convert to bytes
 }
