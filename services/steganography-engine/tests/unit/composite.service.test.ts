@@ -34,7 +34,7 @@ describe('Composite Service', () => {
         await createTestImage(100, 100, 0x00FF00FF)
       ];
       
-      await expect(validateImages(images)).resolves.not.toThrow();
+      await expect(validateImages(images)).resolves.toBeUndefined();
     });
     
     it('should throw error for invalid image buffer', async () => {
