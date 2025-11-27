@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  orchestration:
+    build:
+      target: development
+    environment:
+      - NODE_ENV=development
+      - LOG_LEVEL=debug
+    volumes:
+      - ./services/orchestration:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+
+  steganography:
+    build:
+      target: development
+    environment:
+      - NODE_ENV=development
+      - LOG_LEVEL=debug
+    volumes:
+      - ./services/steganography-engine:/app
+      - /app/node_modules
+    ports:
+      - "3001:3001"
+
+  ip-capture:
+    build:
+      target: development
+    environment:
+      - NODE_ENV=development
+      - LOG_LEVEL=debug
+    volumes:
+      - ./services/ip-capture:/app
+      - /app/node_modules
+    ports:
+      - "3002:3002"
+
+  redis:
+    ports:
+      - "6379:6379"
