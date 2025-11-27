@@ -78,6 +78,42 @@ describe('API Routes', () => {
       expect(response.body.error.code).toBe('NOT_FOUND');
     });
   });
+
+  describe('POST /composite', () => {
+    it('should return error when no images provided', async () => {
+      const response = await request(app).post('/composite');
+      
+      expect(response.status).toBe(400);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.code).toBe('MISSING_IMAGES');
+    });
+
+    it('should return error when only one image provided', async () => {
+      const pngBuffer = createTestPng();
+      
+      const response = await request(app)
+        .post('/composite')
+        .attach('images', pngBuffer, 'test1.png');
+      
+      expect(response.status).toBe(400);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.code).toBe('INSUFFICIENT_IMAGES');
+    });
+
+    it('should return composite image when valid images provided', async () => {
+      const pngBuffer1 = createTestPng();
+      const pngBuffer2 = createTestPng();
+      
+      const response = await request(app)
+        .post('/composite')
+        .attach('images', pngBuffer1, 'test1.png')
+        .attach('images', pngBuffer2, 'test2.png');
+      
+      expect(response.status).toBe(200);
+      expect(response.type).toBe('image/png');
+      expect(response.headers['x-images-used']).toBe('2');
+    });
+  });
 });
 
 // Helper function to create a minimal valid PNG
