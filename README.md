@@ -255,23 +255,23 @@ sudo apt install proxychains4
 
 ## Roadmap
 
-### Phase 1 (Current) ✅
+### Phase 1 ✅
 - [x] Project scaffolding and documentation
 - [x] Service folder structure
 - [x] API endpoint definitions
 - [x] Development environment setup
 
-### Phase 2
-- [ ] Steganography Engine implementation
-- [ ] Unit tests for encoding/decoding
-- [ ] Docker containerization
+### Phase 2 ✅
+- [x] Steganography Engine implementation
+- [x] Unit tests for encoding/decoding
+- [x] Docker containerization
 
-### Phase 3
-- [ ] IP Capture Service implementation
-- [ ] Logging infrastructure
-- [ ] Database integration
+### Phase 3 ✅
+- [x] IP Capture Service implementation
+- [x] Logging infrastructure
+- [x] Database integration (SQLite)
 
-### Phase 4
+### Phase 4 (Current)
 - [ ] Orchestration Service implementation
 - [ ] Inter-service communication
 - [ ] Integration tests
