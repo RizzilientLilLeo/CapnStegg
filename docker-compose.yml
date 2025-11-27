@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  orchestration:
+    build:
+      context: ./services/orchestration
+      dockerfile: Dockerfile
+    container_name: capnstegg-orchestration
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - LOG_LEVEL=info
+      - STEGANOGRAPHY_SERVICE_URL=http://steganography:3001
+      - IP_CAPTURE_SERVICE_URL=http://ip-capture:3002
+      - REDIS_URL=redis://redis:6379
+    ports:
+      - "127.0.0.1:3000:3000"
+    networks:
+      - capnstegg-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      - steganography
+      - ip-capture
+      - redis
+
+  steganography:
+    build:
+      context: ./services/steganography-engine
+      dockerfile: Dockerfile
+    container_name: capnstegg-steganography
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - LOG_LEVEL=info
+    ports:
+      - "127.0.0.1:3001:3001"
+    networks:
+      - capnstegg-network
+    volumes:
+      - steganography-data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  ip-capture:
+    build:
+      context: ./services/ip-capture
+      dockerfile: Dockerfile
+    container_name: capnstegg-ip-capture
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3002
+      - LOG_LEVEL=info
+    ports:
+      - "127.0.0.1:3002:3002"
+    networks:
+      - capnstegg-network
+    volumes:
+      - ip-capture-data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    image: redis:7-alpine
+    container_name: capnstegg-redis
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6379:6379"
+    networks:
+      - capnstegg-network
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+
+networks:
+  capnstegg-network:
+    driver: bridge
+
+volumes:
+  steganography-data:
+  ip-capture-data:
+  redis-data:
