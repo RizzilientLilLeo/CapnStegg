@@ -42,3 +42,11 @@ export interface CapacityInfo {
   availableBytes: number;
   maxMessageLength: number;
 }
+
+export interface CompositeResult {
+  image: Buffer;
+  format: string;
+  width: number;
+  height: number;
+  imagesUsed: number;
+}

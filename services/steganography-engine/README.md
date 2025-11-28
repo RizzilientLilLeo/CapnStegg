@@ -11,6 +11,7 @@ The Steganography Engine is responsible for encoding and decoding hidden message
 - **Encryption**: AES-256-GCM encryption for payload security
 - **Format Support**: PNG, BMP, TIFF formats
 - **Capacity Detection**: Calculate available space before encoding
+- **Composite Image Generation**: Create composite images by randomly overlaying multiple images
 
 ## API Endpoints
 
@@ -18,8 +19,41 @@ The Steganography Engine is responsible for encoding and decoding hidden message
 |--------|--------------------|------------------------------------|
 | POST   | `/encode`          | Encode message into an image       |
 | POST   | `/decode`          | Extract hidden message from image  |
+| POST   | `/composite`       | Generate composite image from multiple images |
 | GET    | `/health`          | Service health check               |
 | GET    | `/supported-formats` | List supported image formats     |
+
+### POST /composite
+
+Generate a composite image by randomly overlaying multiple images.
+
+**Request:**
+- Method: `POST`
+- Content-Type: `multipart/form-data`
+- Field: `images` (2-10 image files, supported formats: PNG, BMP, TIFF)
+
+**Example:**
+```bash
+curl -X POST http://localhost:3001/composite \
+  -F "images=@image1.png" \
+  -F "images=@image2.png" \
+  -F "images=@image3.png" \
+  -o composite.png
+```
+
+**Response:**
+- Content-Type: `image/png`
+- Headers include:
+  - `X-Images-Used`: Number of images used
+  - `X-Output-Width`: Width of composite image
+  - `X-Output-Height`: Height of composite image
+
+**Features:**
+- Randomly positions images on canvas
+- Applies random rotation (0°, 90°, 180°, 270°)
+- Uses random blend modes for artistic effects
+- Applies random opacity (30-100%)
+- Canvas size is determined by the largest image dimensions
 
 ## Getting Started
 

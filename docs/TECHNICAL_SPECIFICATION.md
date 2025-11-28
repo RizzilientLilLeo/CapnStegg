@@ -82,7 +82,7 @@ CapnStegg is a modular steganography and IP capture tool designed for secure, pr
 ### 4.1 Steganography Engine
 
 #### Purpose
-Encode and decode hidden messages within image files using LSB (Least Significant Bit) steganography.
+Encode and decode hidden messages within image files using LSB (Least Significant Bit) steganography. Additionally, generate composite images for use as base images for steganography.
 
 #### API Endpoints
 
@@ -90,8 +90,27 @@ Encode and decode hidden messages within image files using LSB (Least Significan
 |--------|------------------|--------------------------------------|
 | POST   | /encode          | Encode message into an image         |
 | POST   | /decode          | Extract hidden message from image    |
+| POST   | /composite       | Generate composite image from multiple images |
 | GET    | /health          | Service health check                 |
 | GET    | /supported-formats | List supported image formats       |
+
+#### POST /composite
+
+Creates a composite image by randomly overlaying multiple images with various effects.
+
+**Request Parameters:**
+- `images`: 2-10 image files (multipart/form-data)
+
+**Processing:**
+- Random positioning of images on canvas
+- Random rotation (0°, 90°, 180°, 270°)
+- Random blend modes (multiply, screen, overlay, etc.)
+- Random opacity (30-100%)
+- Canvas sized to largest input image dimensions
+
+**Response:**
+- PNG image file
+- Headers: `X-Images-Used`, `X-Output-Width`, `X-Output-Height`
 
 #### Supported Formats
 - PNG (recommended for lossless encoding)
@@ -102,6 +121,7 @@ Encode and decode hidden messages within image files using LSB (Least Significan
 - Maximum file size: 10MB
 - Message encryption: AES-256-GCM
 - Capacity detection before encoding
+- Composite generation: 2-10 images
 
 ### 4.2 IP Capture Service
 

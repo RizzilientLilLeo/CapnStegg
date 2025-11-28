@@ -142,6 +142,7 @@ Encodes and decodes hidden messages within image files.
 |----------------------|--------|--------------------------------|
 | `/encode`            | POST   | Encode message into image      |
 | `/decode`            | POST   | Extract message from image     |
+| `/composite`         | POST   | Generate composite image from multiple images |
 | `/health`            | GET    | Health check                   |
 | `/supported-formats` | GET    | List supported formats         |
 

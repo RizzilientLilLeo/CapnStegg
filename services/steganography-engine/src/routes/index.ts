@@ -2,6 +2,8 @@ import { Router } from 'express';
 import multer from 'multer';
 import { encodeController, capacityController } from '../controllers/encode.controller';
 import { decodeController, checkController } from '../controllers/decode.controller';
+import { compositeController } from '../controllers/composite.controller';
+import { MAX_IMAGES } from '../services/composite.service';
 import config from '../config';
 
 const router = Router();
@@ -36,6 +38,9 @@ router.post('/capacity', upload.single('image'), capacityController);
 // Decoding endpoints
 router.post('/decode', upload.single('image'), decodeController);
 router.post('/check', upload.single('image'), checkController);
+
+// Composite endpoint - accepts multiple images
+router.post('/composite', upload.array('images', MAX_IMAGES), compositeController);
 
 // Health check endpoint
 router.get('/health', (_req, res) => {
